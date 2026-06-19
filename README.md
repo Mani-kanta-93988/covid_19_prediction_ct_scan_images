@@ -1,0 +1,1 @@
+# covid_19_prediction_ct_scan_images
