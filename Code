@@ -1,135 +1,379 @@
-# ============================ IMPORT & INSTALL ============================
-import asyncio
-import nest_asyncio
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
+# # ============================ IMPORT & INSTALL ============================
+# import asyncio
+# import nest_asyncio
+# from telegram import Update, ReplyKeyboardMarkup
+# from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-#  Step 1: Install necessary packages
-!pip install -q kagglehub pillow seaborn scikit-learn
+# #  Step 1: Install necessary packages
+# !pip install -q kagglehub pillow seaborn scikit-learn
 
+# import os
+# import numpy as np
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# import seaborn as sns
+# from PIL import Image
+# import kagglehub
+# from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+# from sklearn.svm import SVC
+# from sklearn.model_selection import train_test_split
+# from sklearn.metrics import accuracy_score
+
+# # ============================ CONFIG ============================
+# nest_asyncio.apply()
+# TOKEN = '7520210560:AAEnXT1owDv1sDU1BpTwTTQ18oGPtKihvQc'  # Replace with your actual bot token
+
+# # ============================ DOWNLOAD DATASET ============================
+# dataset_path = kagglehub.dataset_download("plameneduardo/sarscov2-ctscan-dataset")
+# print(" Dataset downloaded to:", dataset_path)
+
+# base_folder = dataset_path
+# categories = [name for name in os.listdir(base_folder) if os.path.isdir(os.path.join(base_folder, name))]
+# print(f" Found categories: {categories}")
+
+# # ============================ LOAD DATA ============================
+# data = []
+# for label in categories:
+#     folder = os.path.join(base_folder, label)
+#     for file in os.listdir(folder):
+#         if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+#             img_path = os.path.join(folder, file)
+#             try:
+#                 with Image.open(img_path) as img:
+#                     img_resized = img.resize((32, 32)).convert('L')
+#                     pixels = np.array(img_resized).flatten()
+#                     data.append({
+#                         'filename': file,
+#                         'label': label,
+#                         'features': pixels
+#                     })
+#             except:
+#                 continue
+
+# # ============================ CREATE DATAFRAME ============================
+# df = pd.DataFrame(data)
+
+# if not df.empty:
+#     # print("\n  Image counts per class:")
+#     # print(df['label'].value_counts())
+
+#     # Display as table
+#     print("\n Summary Table:")
+#     summary_table = df['label'].value_counts().reset_index()
+#     summary_table.columns = ['Class', 'Number of Images (People)']
+#     print(summary_table.to_string(index=False))
+
+#     # ============================ PREPARE DATA ============================
+#     df['label_code'] = df['label'].astype('category').cat.codes
+#     X = np.stack(df['features'].values)
+#     y = df['label_code'].values
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+#     # ============================ TRAIN MODELS ============================
+#     models = {
+#         "SVM": SVC(kernel='linear', probability=True, random_state=42),
+#         "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
+#         "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, random_state=42)
+#     }
+
+#     best_model = None
+#     best_accuracy = 0
+
+#     for name, model in models.items():
+#         model.fit(X_train, y_train)
+#         y_pred = model.predict(X_test)
+#         acc = accuracy_score(y_test, y_pred)
+#         print(f"{name} Accuracy: {acc * 100:.2f}%")
+#         if acc > best_accuracy:
+#             best_accuracy = acc
+#             best_model = (name, model)
+
+#     print(f"\n Best Model: {best_model[0]} with Accuracy: {best_accuracy * 100:.2f}%")
+
+#     # ============================ VISUALIZATIONS ============================
+#     df['feature_sum'] = [np.sum(f) for f in df['features']]
+#     df['feature_x'] = [np.mean(f[:512]) for f in df['features']]
+#     df['feature_y'] = [np.mean(f[512:]) for f in df['features']]
+
+#     plt.figure(figsize=(18, 5))
+#     plt.subplot(1, 3, 1)
+#     sns.countplot(data=df, x='label')
+#     plt.title('Bar Chart: Number of Images per Class')
+
+#     plt.subplot(1, 3, 2)
+#     sns.histplot(data=df, x='feature_sum', hue='label', kde=True)
+#     plt.title('Histogram: Feature Sum Distribution')
+
+#     plt.subplot(1, 3, 3)
+#     sns.scatterplot(data=df, x='feature_x', y='feature_y', hue='label')
+#     plt.title('Scatter Plot: Feature X vs Y')
+
+#     # plt.subplot(1, 3, 4)
+#     # sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+#     # plt.title('Heatmap: Correlation Matrix')
+
+#     plt.tight_layout()
+#     plt.show()
+
+#     # ============================ SHOW EXAMPLES ============================
+#     def show_examples(df, label, n=5):
+#         subset = df[df['label'] == label]
+#         samples = subset.sample(n=min(n, len(subset)), random_state=42)
+#         plt.figure(figsize=(15, 3))
+#         for i, (_, row) in enumerate(samples.iterrows()):
+#             img_path = os.path.join(base_folder, label, row['filename'])
+#             img = Image.open(img_path)
+#             plt.subplot(1, n, i + 1)
+#             plt.imshow(img, cmap='gray')
+#             plt.title(label)
+#             plt.axis('off')
+#         plt.show()
+
+#     for label in categories:
+#         show_examples(df, label)
+# else:
+#     print(" No data founder.")
+------update code--------
+# ============================================================
+#  COVID CT SCAN DETECTION BOT — COMPLETE SINGLE-FILE CODE
+#  Run this entire notebook top to bottom in Google Colab
+# ============================================================
+
+# ======================== STEP 1: INSTALL ========================
+!pip install -q kagglehub pillow seaborn scikit-learn python-telegram-bot nest_asyncio
+
+# ======================== STEP 2: IMPORTS ========================
 import os
+import io
+import asyncio
+import logging
+import nest_asyncio
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from PIL import Image
 import kagglehub
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.svm import SVC
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 
-# ============================ CONFIG ============================
 nest_asyncio.apply()
-TOKEN = '7520210560:AAEnXT1owDv1sDU1BpTwTTQ18oGPtKihvQc'  # Replace with your actual bot token
+logging.basicConfig(level=logging.INFO)
 
-# ============================ DOWNLOAD DATASET ============================
+# ======================== STEP 3: CONFIG ========================
+# ⚠️  NEVER share your token publicly — revoke & regenerate at @BotFather if exposed
+TOKEN = 'YOUR_BOT_TOKEN_HERE'   # <-- paste your token here
+
+IMG_SIZE   = 64   # bigger than 32×32 → more features → higher accuracy
+N_FEATURES = IMG_SIZE * IMG_SIZE
+
+# ======================== STEP 4: DOWNLOAD DATASET ========================
+print("Downloading dataset...")
 dataset_path = kagglehub.dataset_download("plameneduardo/sarscov2-ctscan-dataset")
-print(" Dataset downloaded to:", dataset_path)
+print(f"Dataset path: {dataset_path}")
 
-base_folder = dataset_path
-categories = [name for name in os.listdir(base_folder) if os.path.isdir(os.path.join(base_folder, name))]
-print(f" Found categories: {categories}")
+categories = [
+    name for name in os.listdir(dataset_path)
+    if os.path.isdir(os.path.join(dataset_path, name))
+]
+print(f"Classes found: {categories}")
 
-# ============================ LOAD DATA ============================
+# ======================== STEP 5: LOAD & PREPROCESS IMAGES ========================
+def load_image(path):
+    """Load, resize to IMG_SIZE×IMG_SIZE, convert to grayscale, flatten, normalise."""
+    with Image.open(path) as img:
+        arr = np.array(img.resize((IMG_SIZE, IMG_SIZE)).convert('L'), dtype=np.float32)
+        return arr.flatten() / 255.0   # normalise to [0, 1]
+
 data = []
 for label in categories:
-    folder = os.path.join(base_folder, label)
-    for file in os.listdir(folder):
-        if file.lower().endswith(('.png', '.jpg', '.jpeg')):
-            img_path = os.path.join(folder, file)
+    folder = os.path.join(dataset_path, label)
+    for fname in os.listdir(folder):
+        if fname.lower().endswith(('.png', '.jpg', '.jpeg')):
+            fpath = os.path.join(folder, fname)
             try:
-                with Image.open(img_path) as img:
-                    img_resized = img.resize((32, 32)).convert('L')
-                    pixels = np.array(img_resized).flatten()
-                    data.append({
-                        'filename': file,
-                        'label': label,
-                        'features': pixels
-                    })
-            except:
-                continue
+                features = load_image(fpath)
+                data.append({'filename': fname, 'label': label, 'features': features})
+            except Exception as e:
+                print(f"Skip {fpath}: {e}")
 
-# ============================ CREATE DATAFRAME ============================
 df = pd.DataFrame(data)
+print("\nImage counts per class:")
+print(df['label'].value_counts().to_string())
 
-if not df.empty:
-    # print("\n  Image counts per class:")
-    # print(df['label'].value_counts())
+# ======================== STEP 6: PREPARE DATA ========================
+label_map  = {label: i for i, label in enumerate(sorted(categories))}
+inv_label  = {v: k for k, v in label_map.items()}
 
-    # Display as table
-    print("\n Summary Table:")
-    summary_table = df['label'].value_counts().reset_index()
-    summary_table.columns = ['Class', 'Number of Images (People)']
-    print(summary_table.to_string(index=False))
+X = np.stack(df['features'].values)
+y = df['label'].map(label_map).values
 
-    # ============================ PREPARE DATA ============================
-    df['label_code'] = df['label'].astype('category').cat.codes
-    X = np.stack(df['features'].values)
-    y = df['label_code'].values
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# StandardScaler greatly helps SVM and Gradient Boosting
+scaler  = StandardScaler()
+X_scaled = scaler.fit_transform(X)
 
-    # ============================ TRAIN MODELS ============================
-    models = {
-        "SVM": SVC(kernel='linear', probability=True, random_state=42),
-        "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42),
-        "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, random_state=42)
-    }
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.2, random_state=42, stratify=y
+)
 
-    best_model = None
-    best_accuracy = 0
+# ======================== STEP 7: TRAIN ENSEMBLE MODEL ========================
+print("\nTraining models (this takes a few minutes)...")
 
-    for name, model in models.items():
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        acc = accuracy_score(y_test, y_pred)
-        print(f"{name} Accuracy: {acc * 100:.2f}%")
-        if acc > best_accuracy:
-            best_accuracy = acc
-            best_model = (name, model)
+svm = SVC(kernel='rbf', C=10, gamma='scale', probability=True, random_state=42)
+rf  = RandomForestClassifier(n_estimators=300, max_depth=None, random_state=42, n_jobs=-1)
+gb  = GradientBoostingClassifier(n_estimators=200, learning_rate=0.1, max_depth=5, random_state=42)
 
-    print(f"\n Best Model: {best_model[0]} with Accuracy: {best_accuracy * 100:.2f}%")
+# Soft-voting ensemble — combines probability outputs of all three models
+ensemble = VotingClassifier(
+    estimators=[('svm', svm), ('rf', rf), ('gb', gb)],
+    voting='soft'
+)
 
-    # ============================ VISUALIZATIONS ============================
-    df['feature_sum'] = [np.sum(f) for f in df['features']]
-    df['feature_x'] = [np.mean(f[:512]) for f in df['features']]
-    df['feature_y'] = [np.mean(f[512:]) for f in df['features']]
+ensemble.fit(X_train, y_train)
+y_pred = ensemble.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
 
-    plt.figure(figsize=(18, 5))
-    plt.subplot(1, 3, 1)
-    sns.countplot(data=df, x='label')
-    plt.title('Bar Chart: Number of Images per Class')
+print(f"\n✅ Ensemble Accuracy: {acc * 100:.2f}%")
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred, target_names=sorted(categories)))
 
-    plt.subplot(1, 3, 2)
-    sns.histplot(data=df, x='feature_sum', hue='label', kde=True)
-    plt.title('Histogram: Feature Sum Distribution')
+# Also show individual model accuracy for reference
+for name, model in [('SVM', svm), ('Random Forest', rf), ('Gradient Boosting', gb)]:
+    model.fit(X_train, y_train)
+    a = accuracy_score(y_test, model.predict(X_test))
+    print(f"  {name}: {a * 100:.2f}%")
 
-    plt.subplot(1, 3, 3)
-    sns.scatterplot(data=df, x='feature_x', y='feature_y', hue='label')
-    plt.title('Scatter Plot: Feature X vs Y')
+# ======================== STEP 8: VISUALISATIONS ========================
+df['feature_sum']  = [f.sum() for f in df['features']]
+df['feature_mean'] = [f.mean() for f in df['features']]
+df['feature_std']  = [f.std() for f in df['features']]
 
-    # plt.subplot(1, 3, 4)
-    # sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
-    # plt.title('Heatmap: Correlation Matrix')
+plt.figure(figsize=(18, 5))
 
+plt.subplot(1, 3, 1)
+sns.countplot(data=df, x='label')
+plt.title('Image Count per Class')
+plt.xlabel('Class')
+
+plt.subplot(1, 3, 2)
+sns.histplot(data=df, x='feature_mean', hue='label', kde=True, bins=40)
+plt.title('Mean Pixel Intensity Distribution')
+plt.xlabel('Mean pixel value (normalised)')
+
+plt.subplot(1, 3, 3)
+sns.scatterplot(data=df, x='feature_mean', y='feature_std', hue='label', alpha=0.4)
+plt.title('Pixel Mean vs Std Deviation')
+plt.xlabel('Mean')
+plt.ylabel('Std Dev')
+
+plt.tight_layout()
+plt.show()
+
+# Show sample images
+def show_samples(df, label, n=5):
+    subset = df[df['label'] == label].sample(n=min(n, len(df[df['label'] == label])), random_state=42)
+    plt.figure(figsize=(15, 3))
+    for i, (_, row) in enumerate(subset.iterrows()):
+        img_path = os.path.join(dataset_path, label, row['filename'])
+        img = Image.open(img_path)
+        plt.subplot(1, n, i + 1)
+        plt.imshow(img, cmap='gray')
+        plt.title(label, fontsize=9)
+        plt.axis('off')
+    plt.suptitle(f'Sample images — {label}', fontsize=12)
     plt.tight_layout()
     plt.show()
 
-    # ============================ SHOW EXAMPLES ============================
-    def show_examples(df, label, n=5):
-        subset = df[df['label'] == label]
-        samples = subset.sample(n=min(n, len(subset)), random_state=42)
-        plt.figure(figsize=(15, 3))
-        for i, (_, row) in enumerate(samples.iterrows()):
-            img_path = os.path.join(base_folder, label, row['filename'])
-            img = Image.open(img_path)
-            plt.subplot(1, n, i + 1)
-            plt.imshow(img, cmap='gray')
-            plt.title(label)
-            plt.axis('off')
-        plt.show()
+for label in categories:
+    show_samples(df, label)
 
-    for label in categories:
-        show_examples(df, label)
-else:
-    print(" No data founder.")
+# ======================== STEP 9: PREDICTION FUNCTION ========================
+def predict_image(image: Image.Image) -> dict:
+    """
+    Accept a PIL Image, preprocess exactly like training, return prediction dict.
+    Returns: {'label': str, 'confidence': float, 'probabilities': dict}
+    """
+    arr = np.array(
+        image.resize((IMG_SIZE, IMG_SIZE)).convert('L'),
+        dtype=np.float32
+    ).flatten() / 255.0
+
+    arr_scaled = scaler.transform([arr])
+    proba      = ensemble.predict_proba(arr_scaled)[0]        # shape: (n_classes,)
+    pred_idx   = int(np.argmax(proba))
+
+    return {
+        'label':         inv_label[pred_idx],
+        'confidence':    float(proba[pred_idx]) * 100,
+        'probabilities': {inv_label[i]: float(p) * 100 for i, p in enumerate(proba)}
+    }
+
+# ======================== STEP 10: TELEGRAM BOT ========================
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg = (
+        "🩺 *COVID CT Scan Bot*\n\n"
+        "Send me a chest CT scan image and I will classify it.\n\n"
+        f"*Model:* Soft-Voting Ensemble (SVM + RF + GB)\n"
+        f"*Test accuracy:* {acc * 100:.2f}%\n"
+        f"*Image size:* {IMG_SIZE}×{IMG_SIZE} px (grayscale)"
+    )
+    await update.message.reply_text(msg, parse_mode='Markdown')
+
+async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("🔍 Analysing your CT scan, please wait...")
+
+    try:
+        # Telegram sends compressed photos as .photo; for full-res use .document
+        if update.message.photo:
+            file_obj = await update.message.photo[-1].get_file()
+        elif update.message.document:
+            file_obj = await update.message.document.get_file()
+        else:
+            await update.message.reply_text("Please send an image file.")
+            return
+
+        img_bytes = await file_obj.download_as_bytearray()
+        image     = Image.open(io.BytesIO(img_bytes))
+
+        result = predict_image(image)
+
+        # Build probability breakdown text
+        prob_lines = "\n".join(
+            f"  • {cls}: {pct:.1f}%"
+            for cls, pct in sorted(result['probabilities'].items(), key=lambda x: -x[1])
+        )
+
+        # Emoji based on prediction
+        emoji = "🔴" if "COVID" in result['label'].upper() else "🟢"
+
+        reply = (
+            f"{emoji} *Prediction: {result['label']}*\n"
+            f"Confidence: *{result['confidence']:.1f}%*\n\n"
+            f"*Class probabilities:*\n{prob_lines}\n\n"
+            f"⚠️ _This is a research tool, not a medical diagnosis._"
+        )
+        await update.message.reply_text(reply, parse_mode='Markdown')
+
+    except Exception as e:
+        await update.message.reply_text(f"❌ Error processing image: {e}")
+
+async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle images sent as documents (uncompressed)."""
+    await handle_image(update, context)
+
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.PHOTO,    handle_image))
+    app.add_handler(MessageHandler(filters.Document.IMAGE, handle_document))
+
+    print("\n🤖 Bot is running! Open Telegram and send a CT scan image.")
+    await app.run_polling()
+
+# ======================== STEP 11: RUN BOT ========================
+asyncio.run(main())
