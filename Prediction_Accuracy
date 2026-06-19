@@ -1,15 +1,29 @@
-Downloading from https://www.kaggle.com/api/v1/datasets/download/plameneduardo/sarscov2-ctscan-dataset?dataset_version_number=2...
-100%|██████████| 230M/230M [00:01<00:00, 168MB/s]Extracting files...
+Downloading dataset...
+Downloading to /root/.cache/kagglehub/datasets/plameneduardo/sarscov2-ctscan-dataset/2.archive...
+100%|██████████| 230M/230M [00:01<00:00, 181MB/s]Extracting files...
 
- Dataset downloaded to: /root/.cache/kagglehub/datasets/plameneduardo/sarscov2-ctscan-dataset/versions/2
- Found categories: ['COVID', 'non-COVID']
+Dataset path: /root/.cache/kagglehub/datasets/plameneduardo/sarscov2-ctscan-dataset/versions/2
+Classes found: ['COVID', 'non-COVID']
 
- Summary Table:
-    Class  Number of Images (People)
-    COVID                       1252
-non-COVID                       1229
-SVM Accuracy: 79.88%
-Random Forest Accuracy: 93.56%
-Gradient Boosting Accuracy: 93.36%
+Image counts per class:
+label
+COVID        1252
+non-COVID    1229
 
- Best Model: Random Forest with Accuracy: 93.56%
+Training models (this takes a few minutes)...
+
+✅ Ensemble Accuracy: 94.57%
+
+Classification Report:
+              precision    recall  f1-score   support
+
+       COVID       0.97      0.92      0.94       251
+   non-COVID       0.92      0.97      0.95       246
+
+    accuracy                           0.95       497
+   macro avg       0.95      0.95      0.95       497
+weighted avg       0.95      0.95      0.95       497
+
+  SVM: 95.17%
+  Random Forest: 90.74%
+  Gradient Boosting: 93.96%
