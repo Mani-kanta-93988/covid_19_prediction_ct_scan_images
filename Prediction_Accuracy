@@ -1,3 +1,19 @@
+Downloading from https://www.kaggle.com/api/v1/datasets/download/plameneduardo/sarscov2-ctscan-dataset?dataset_version_number=2...
+100%|██████████| 230M/230M [00:01<00:00, 168MB/s]Extracting files...
+
+ Dataset downloaded to: /root/.cache/kagglehub/datasets/plameneduardo/sarscov2-ctscan-dataset/versions/2
+ Found categories: ['COVID', 'non-COVID']
+
+ Summary Table:
+    Class  Number of Images (People)
+    COVID                       1252
+non-COVID                       1229
+SVM Accuracy: 79.88%
+Random Forest Accuracy: 93.56%
+Gradient Boosting Accuracy: 93.36%
+
+ Best Model: Random Forest with Accuracy: 93.56%
+---------update code accuracy--------------------------------------
 Downloading dataset...
 Downloading to /root/.cache/kagglehub/datasets/plameneduardo/sarscov2-ctscan-dataset/2.archive...
 100%|██████████| 230M/230M [00:01<00:00, 181MB/s]Extracting files...
