@@ -1,0 +1,66 @@
+u!pip install python-telegram-bot --upgrade
+!pip install nest_asyncio
+
+# Step 1: Install dependencies
+!pip install -q python-telegram-bot --upgrade
+!pip install -q nest_asyncio
+!pip install -q pillow
+# If using TensorFlow model, uncomment this:
+# !pip install -q tensorflow
+
+# Step 2: Bot code
+import nest_asyncio
+import asyncio
+import logging
+from io import BytesIO
+from PIL import Image
+import numpy as np
+# import tensorflow as tf  # Uncomment if using TensorFlow model
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+
+# Apply asyncio patch for Colab
+nest_asyncio.apply()
+
+# Logging
+logging.basicConfig(level=logging.INFO)
+
+#  Replace this with your NEW token
+TOKEN = '7520210560:AAEnXT1owDv1sDU1BpTwTTQ18oGPt'  # NEVER share your real token in public
+
+#  Dummy model prediction (replace with actual model logic)
+def predict_ct_scan(image: Image.Image) -> str:
+    image = image.resize((224, 224))
+    img_array = np.array(image) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
+
+    # Example prediction logic for TF
+    # prediction = model.predict(img_array)
+    # return "COVID" if prediction[0][0] > 0.5 else "No COVID"
+    return "COVID"  # Dummy result
+
+# /start handler
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(" Hello! Send me a CT scan image and I'll predict if it's COVID or not.")
+
+# Image handler
+async def handle_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    photo = update.message.photo[-1]
+    photo_file = await photo.get_file()
+    image_bytes = await photo_file.download_as_bytearray()
+    image = Image.open(BytesIO(image_bytes)).convert('RGB')
+
+    result = predict_ct_scan(image)
+    await update.message.reply_text(f"🩺 Prediction: {result}")
+
+# Main bot runner
+async def main():
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.PHOTO, handle_image))
+
+    print(" Bot is running... Send a CT scan to it on Telegram.")
+    await app.run_polling()
+
+# Start the bot
+asyncio.run(main())
